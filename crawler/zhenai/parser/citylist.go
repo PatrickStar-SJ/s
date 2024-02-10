@@ -16,11 +16,11 @@ func ParseCityList(contents []byte) engine.ParseResult {
 		//result.Items = append(
 		//	result.Items, m[2])
 		result.Items = append(
-			result.Items, string(m[2])) //这里加了string之后，打印出城市名，否则会是 [int]的列表
+			result.Items, "City "+string(m[2])) //这里加了string之后，打印出城市名，否则会是 [int]的列表
 		result.Requests = append(
 			result.Requests, engine.Request{
 				Url:        string(m[1]),
-				ParserFunc: engine.NilParser,
+				ParserFunc: ParseCity,
 			})
 	}
 	return result

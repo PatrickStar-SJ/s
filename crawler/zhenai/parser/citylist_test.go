@@ -33,7 +33,7 @@ func TestParseCityList(t *testing.T) {
 		"http://localhost:8080/mock/www.zhenai.com/zhenghun/bishan",
 	}
 	expectedCities := []string{
-		"滨海新", "滨州", "璧山",
+		"City 滨海新", "City 滨州", "City 璧山",
 	}
 
 	if len(result.Items) != resultSize {
