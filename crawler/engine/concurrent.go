@@ -10,24 +10,20 @@ type ConcurrentEngine struct {
 	WorkerCount int
 }
 type Scheduler interface {
-	ReadyNotifier
 	Submit(Request)
-	WorkerChan() chan Request
+	ConfigureMasterWorkerChan(chan Request)
+	WorkerReady(chan Request)
 	Run()
 }
 
-type ReadyNotifier interface {
-	WorkerReady(chan Request)
-}
-
 func (e *ConcurrentEngine) Run(seeds ...Request) {
-	log.Printf("===0====")
+
 	out := make(chan ParseResult)
 	e.Scheduler.Run()
 	for i := 0; i < e.WorkerCount; i++ {
-		createWorker(e.Scheduler.WorkerChan(), out, e.Scheduler)
+		createWorker(out, e.Scheduler)
 	}
-	log.Printf("===1====")
+
 	for _, r := range seeds {
 		if isDuplicate(r.Url) {
 			//log.Printf("Duplicate request: "+
@@ -36,8 +32,9 @@ func (e *ConcurrentEngine) Run(seeds ...Request) {
 		}
 		e.Scheduler.Submit(r)
 	}
-	//log.Printf("===2====")
+
 	ProfileCount := 0
+
 	for {
 		result := <-out
 		for _, item := range result.Items {
@@ -58,11 +55,12 @@ func (e *ConcurrentEngine) Run(seeds ...Request) {
 	}
 }
 
-func createWorker(in chan Request,
-	out chan ParseResult, ready ReadyNotifier) {
+func createWorker(
+	out chan ParseResult, s Scheduler) {
+	in := make(chan Request)
 	go func() {
 		for {
-			ready.WorkerReady(in)
+			s.WorkerReady(in)
 			request := <-in
 			result, err := worker(request)
 			if err != nil {
