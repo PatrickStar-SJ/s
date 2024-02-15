@@ -12,6 +12,7 @@ const cityListRe = `<a href="(.*www\.zhenai\.com/zhenghun/[0-9a-z]+)"[^>]*>([^<]
 // 这个函数是网络爬虫中负责解析城市列表的部分，是爬虫任务开始的一个入口点。
 func ParseCityList(contents []byte) engine.ParseResult {
 	re := regexp.MustCompile(cityListRe)
+
 	// 在contents中查找所有匹配项。-1表示不限制查找的数量。
 	//matches是一个二维字节切片，每个元素代表一个匹配项，其中第一个元素是整个匹配项，后续元素是各个捕获组的内容。
 	matches := re.FindAllSubmatch(contents, -1)

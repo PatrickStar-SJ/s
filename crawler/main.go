@@ -2,6 +2,7 @@ package main
 
 import (
 	"spiders_on_go/crawler/engine"
+	"spiders_on_go/crawler/scheduler"
 	"spiders_on_go/crawler/zhenai/parser"
 )
 
@@ -14,7 +15,11 @@ import (
 */
 func main() {
 
-	engine.Run(engine.Request{
+	e := engine.ConcurrentEngine{
+		Scheduler:   &scheduler.QueuedScheduler{},
+		WorkerCount: 100,
+	}
+	e.Run(engine.Request{
 		Url:        "http://localhost:8080/mock/www.zhenai.com/zhenghun",
 		ParserFunc: parser.ParseCityList,
 	})

@@ -10,11 +10,15 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
 )
 
 // 该函数作用是从指定的 URL 下载内容，并将这些内容转换为 UTF-8 编码的文本
 // 函数输入是一个字符串类型的 url 参数，输出是一个字节切片和一个错误值。字节切片用于存储从 URL 获取的内容
+var rateLimiter = time.Tick(10 * time.Microsecond)
+
 func Fetch(url string) ([]byte, error) {
+	//<-rateLimiter // 防止http获取太快了
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
