@@ -2,6 +2,7 @@ package engine
 
 import (
 	"log"
+	"spiders_on_go/crawler/model"
 )
 
 type ConcurrentEngine struct {
@@ -28,17 +29,30 @@ func (e *ConcurrentEngine) Run(seeds ...Request) {
 	}
 	log.Printf("===1====")
 	for _, r := range seeds {
+		if isDuplicate(r.Url) {
+			//log.Printf("Duplicate request: "+
+			//	"%s", r.Url)
+			continue
+		}
 		e.Scheduler.Submit(r)
 	}
 	//log.Printf("===2====")
-	itemCount := 0
+	ProfileCount := 0
 	for {
 		result := <-out
 		for _, item := range result.Items {
-			log.Printf("Got item #%d: %v", itemCount, item)
-			itemCount++
+			if _, ok := item.(model.Profile); ok {
+				log.Printf("Got profile #%d: %v", ProfileCount, item)
+				ProfileCount++
+			}
 		}
+		// URL 去重
 		for _, request := range result.Requests {
+			if isDuplicate(request.Url) {
+				//log.Printf("Duplicate request: "+
+				//	"%s", request.Url)
+				continue
+			}
 			e.Scheduler.Submit(request)
 		}
 	}
@@ -57,4 +71,14 @@ func createWorker(in chan Request,
 			out <- result
 		}
 	}()
+}
+
+var visitedUrls = make(map[string]bool)
+
+func isDuplicate(url string) bool {
+	if visitedUrls[url] {
+		return true
+	}
+	visitedUrls[url] = true
+	return false
 }
