@@ -15,6 +15,7 @@ import (
 */
 func main() {
 
+	// 创建了一个ConcurrentEngine实例，指定了使用的调度器为SimpleScheduler，并设置了工作协程的数量为100.
 	e := engine.ConcurrentEngine{
 		Scheduler:   &scheduler.QueuedScheduler{},
 		WorkerCount: 100,
