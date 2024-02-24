@@ -17,11 +17,15 @@ func main() {
 
 	// 创建了一个ConcurrentEngine实例，指定了使用的调度器为SimpleScheduler，并设置了工作协程的数量为100.
 	e := engine.ConcurrentEngine{
-		Scheduler:   &scheduler.SimpleScheduler{},
+		Scheduler:   &scheduler.QueuedScheduler{},
 		WorkerCount: 100,
 	}
+	//e.Run(engine.Request{
+	//	Url:        "http://localhost:8080/mock/www.zhenai.com/zhenghun/shanghai",
+	//	ParserFunc: parser.ParseCity,
+	//})
 	e.Run(engine.Request{
-		Url:        "http://localhost:8080/mock/www.zhenai.com/zhenghun",
+		Url:        "http://localhost:8080/mock/www.zhenai.com/zhenghun/",
 		ParserFunc: parser.ParseCityList,
 	})
 }

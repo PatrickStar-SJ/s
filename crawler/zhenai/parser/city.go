@@ -5,15 +5,20 @@ import (
 	"spiders_on_go/crawler/engine"
 )
 
-const cityRe = `<a href="(.*album\.zhenai\.com/u/[0-9]+)"[^>]*>([^<]+)</a>`
+var (
+	profileRe = regexp.MustCompile(
+		`<a href="(.*album\.zhenai\.com/u/[0-9]+)"[^>]*>([^<]+)</a>`)
+	cityUrlRe = regexp.MustCompile(
+		`href="(.*www\.zhenai\.com/zhenghun/[^"]+)"`)
+)
 
 // 这个函数用于解析城市页面
 // 输入一个字节切片contents作为参数（这通常是城市页面的HTML内容）
 // 这个函数的作用是解析城市页面，提取出用户的URL和名称。
 func ParseCity(
 	contents []byte) engine.ParseResult {
-	re := regexp.MustCompile(cityRe)
-	matches := re.FindAllSubmatch(contents, -1)
+
+	matches := profileRe.FindAllSubmatch(contents, -1)
 	result := engine.ParseResult{}
 	for _, m := range matches {
 		name := string(m[2])
@@ -29,6 +34,15 @@ func ParseCity(
 				ParserFunc: func(c []byte) engine.ParseResult {
 					return ParseProfile(c, name)
 				},
+			})
+	}
+	matches = cityUrlRe.FindAllSubmatch(
+		contents, -1)
+	for _, m := range matches {
+		result.Requests = append(result.Requests,
+			engine.Request{
+				Url:        string(m[1]),
+				ParserFunc: ParseCity,
 			})
 	}
 	return result
